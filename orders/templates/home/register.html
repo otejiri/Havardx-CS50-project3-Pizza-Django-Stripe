@@ -1,0 +1,27 @@
+{% extends 'home/base.html' %}
+{% block body %}
+                    <h1>Register | <a href="{% url 'index' %}">Login</a></h1>
+                    <hr>
+                    <form action="{% url 'create_user' %}" method="post">
+                        {% csrf_token %}
+                    <label for="username">Username</label>
+                    <input type="username" name="username" class="form-control">
+                    
+                    <label for="password">Password</label>
+                    <input type="password" name="password" class="form-control">
+
+                    <label for="fname">First name</label>
+                    <input type="text" name="fname" class="form-control">
+
+                    <label for="lname">Last name </label>
+                    <input type="lname" name="lname" class="form-control">
+
+                    <label for="email">Email</label>
+                    <input type="email" name="email" class="form-control">
+
+                    <br>
+
+                    <input type="submit" class="btn btn-primary"
+                    value="Register">
+                    </form>
+{% endblock %}

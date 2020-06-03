@@ -1,0 +1,178 @@
+body {
+        background-color: #ffffff;
+background-image: url("https://www.transparenttextures.com/patterns/food.png");
+/* This is mostly intended for prototyping; please download the pattern and re-host for production environments. Thank you! */
+    }
+.card {
+        background-color: #ffffff;
+background-image: url("https://www.transparenttextures.com/patterns/food.png");
+    }
+    .footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  /* Set the fixed height of the footer here */
+  height: 60px;
+  line-height: 60px; /* Vertically center the text there */
+  background-color: #f5f5f5;
+}
+    .pagination {
+    text-align: center;
+    margin: 0.5em;
+
+
+}
+
+.pagination a {
+    text-decoration: none;
+    color: red;
+}
+
+.pagination-number {
+    padding: 0.5em 0.8em;
+    margin: 0 0.2em;
+    border-radius: 2px;
+    color: #fff;
+    background-color: black;
+}
+
+.pagination-number:hover,
+.pagination-current {
+    background-color: rgb(170, 169, 169);
+}
+
+.pagination-action {
+    margin: 0 0.9em;
+    display: inline-block;
+    color: rgb(10, 10, 10);
+    font-size: 1.3em;
+}
+
+.pagination-action:hover,
+.pagination-previous,
+.pagination-next {
+    color: white;
+}
+.navbar-light .navbar-nav > .active > a,
+.navbar-light .navbar-nav > .active > :hover,
+.navbar-light .navbar-nav > .active > :focus {
+    color: #000;
+    background: #d65c14;
+}
+    .navbar-light .navbar-nav > :hover{
+    color: #000;
+    background: #f5ebe7cc;
+}
+
+    .checkboxes {
+      text-align:center;
+     }
+
+    .checkboxes input{
+      margin: 0px 0px 0px 0px;
+     }
+
+     .checkboxes label{
+       margin: 0px 20px 0px 3px;
+     }
+    .ribbon-wrapper-green {
+  width: 85px;
+  height: 88px;
+  overflow: hidden;
+  position: absolute;
+  top: -3px;
+  right: -3px;
+}
+td {
+  padding: 10px;
+}
+th {
+  padding: 10px;
+}
+.ribbon-green {
+  font: bold 15px Sans-Serif;
+  color: #333;
+  text-align: center;
+  text-shadow: rgba(255,255,255,0.5) 0px 1px 0px;
+  transform: rotate(45deg);
+  position: relative;
+  padding: 7px 0;
+  left: -5px;
+  top: 15px;
+  width: 120px;
+  background-color: red;
+  background-image: -webkit-gradient(linear, left top, left bottom, from(red), to(rgb(255, 52, 52))); 
+  background-image: -webkit-linear-gradient(top, red, rgb(255, 52, 52)); 
+  background-image:    -moz-linear-gradient(top, red, rgb(255, 52, 52)); 
+  background-image:     -ms-linear-gradient(top, red, rgb(255, 52, 52)); 
+  background-image:      -o-linear-gradient(top, red, rgb(255, 52, 52)); 
+  color: black;
+  -webkit-box-shadow: 0px 0px 3px rgba(0,0,0,0.3);
+  -moz-box-shadow:    0px 0px 3px rgba(0,0,0,0.3);
+  box-shadow:         0px 0px 3px rgba(0,0,0,0.3);
+}
+
+.ribbon-green:before, .ribbon-green:after {
+  content: "";
+  border-top:   3px solid rgb(255, 52, 52);   
+  border-left:  3px solid transparent;
+  border-right: 3px solid transparent;
+  position:absolute;
+  bottom: -3px;
+}
+
+.ribbon-green:before {
+  left: 0;
+}
+.ribbon-green:after {
+  right: 0;
+}​
+    .blink {
+  animation: blink-animation 1s steps(5, start) infinite;
+  -webkit-animation: blink-animation 1s steps(5, start) infinite;
+}
+@keyframes blink-animation {
+  to {
+    visibility: hidden;
+  }
+}
+@-webkit-keyframes blink-animation {
+  to {
+    visibility: hidden;
+  }
+}
+th{ border-bottom: 1px solid #555;}
+.img-thumbnail {
+background: #000;
+}
+.notification {
+color: white;
+text-decoration: none;
+margin: 5px;
+position: relative;
+display: inline-block;
+border-radius: 2px;
+}
+
+.notification:hover {
+background: red;
+}
+
+.notification .badge {
+position: absolute;
+display: inline-block;
+top: -10px;
+right: -10px;
+padding: 5px 8px;
+border-radius: 100%;
+background: red;
+color: white;
+}
+.my-custom-scrollbar {
+position: relative;
+max-height: 500px;
+overflow: auto;
+}
+.table-wrapper-scroll-y {
+display: block;
+}

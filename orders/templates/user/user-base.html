@@ -1,0 +1,566 @@
+
+
+<!DOCTYPE html>
+
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="">
+    <link rel="stylesheet"
+    href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+    crossorigin="anonymous">
+    <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    {% load static %}
+       
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">Afe Pizza Hut <i class="fa fa-home"></i></a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarText">
+            <ul class="navbar-nav mr-auto">
+
+                <!-- if user is not staff store navbar items  -->
+                {% if not user.is_staff %}
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'pizza' %}">Pizza's</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'subs' %}">Subs</a>
+              </li>
+              <li class="nav-item">
+                  <a class="nav-link" href="{% url 'pasta' %}">Pasta</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'salads' %}">Salads</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'dinner_platters' %}">Dinner Platters</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'orders' %}">My Orders </a>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'orders' %}">Orders List</a>
+                </li>
+             {%  endif %}
+            </ul>
+          <span class="navbar-text">
+              <span class="mr-5"> {{ user.get_username }} <i class="fa fa-user "
+                style="font-size:30px;color:#000"></i>
+              </span>
+              <!-- if user is not staff show cart icon with count  -->
+              {% if not user.is_staff %}
+            <a href="{% url 'pizza' %}" class="notification mr-5">
+                <span><i class="fa fa-shopping-cart " style="font-size:30px;color:#000"></i></span>
+                <span class="badge">{{ cart_item_count }}</span>
+              </a>
+              {% else %}
+              <!-- if user is staff show pending icon with count -->
+              <a href="#" class="notification mr-5">
+                <span><i class="fa fa-clock-o " style="font-size:30px;color:#000"></i></span>
+                <span class="badge">{{pending_items_count}}</span>
+              </a>
+              {%  endif %}
+           <a href="{% url 'logout_user' %}" class="mr-5"><i class="fa fa-sign-out " style="font-size:30px;color:#000"></i></a>
+          </span>
+       
+        </div>
+      </nav>
+    <!-- end of nav  -->
+
+    <div class="container" style="margin-top: 3.5rem;">
+        <!-- if url is not orders show items  -->
+        {% if request.resolver_match.url_name != 'orders' %}
+        <div class="row">
+            <div class="col-md-9"  style="max-height: 80%; 
+                     max-width: 100%; 
+            background-color: rgb(255, 185, 185); padding: 15px; margin-bottom:
+            80px; border-radius: 5px; ">
+                <!-- start of drop down  -->
+<div class="row">
+    <!-- loading striper filter for summing and stripeconversions  -->
+    {% load striper %}
+    {% for items in inventory %}
+    {% if items.item_type|stringformat:"s" == request.resolver_match.url_name %}
+                                <div class="col-md-6 col-lg-4 col-sm-12 col-xs-12 mt-4">
+                                  <div class="card">{% load static %}
+                                    <img src="static/images/items/{{ items.name }}.png"
+                                    class="card-img-top" height="150" alt="...">
+                                    <div class="card-body">
+                                      <h5 class="card-title"><small><b>{{ items.name }}</b></small></h5>
+                                      {% if items.comments %}
+                                      <i class="fa fa-info-circle" style="cursor: pointer;" data-toggle="tooltip" data-placement="top" title="{{items.comments}}"></i>
+
+                                      {% endif %}
+                                      <a href="#" data-toggle="modal" data-target="#modal{{ items.id }}" aria-expanded="true"
+                                      aria-controls="collapseOne" class="btn btn-dark">Select</a>
+                                      {% if items.special %} <div class="ribbon-wrapper-green"><div class="ribbon-green">DEAL</div></div>
+                                      {% endif %}
+                                    </div>
+                                  </div>
+                                </div>
+    
+                          
+                    <!-- end of pizza  -->
+    
+                    <!-- item modal window  -->
+    <div class="modal fade" id="modal{{ items.id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLongTitle">
+                  {% if items.customizable is True%}Customize {% endif %} Item</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <form action="{% url 'add_to_cart' %}" method="post">
+                {% csrf_token %}
+    
+            <div class="modal-body">
+                <input type="hidden" name="next" value="{{ request.path }}">
+                    <label class="col-form-label" for="qty">Qty</label>
+                    <div class="input-group col-md-4 col-sm-6">
+                        <div class="input-group-prepend">
+                          <button class="btn btn-danger" onclick="qtySub('qty{{ items.id }}')" type="button">-</button>
+                        </div>
+                        <input type="number" id="qty{{ items.id }}" min="1"
+                        max="10" name="qty" class="form-control" value="1" readonly>
+                        <div class="input-group-append">
+                            <button class="btn btn-success" onclick="qtyAdd('qty{{ items.id }}')" type="button">+</button>
+                          </div>
+                      </div>
+            <label class="col-form-label" for="item">Price</label>
+<div class="col-12" >
+
+                    <select class="form-control" name="item" id="pizza-size">
+                    {% for item in items.cost.all %}
+                    <option value="{{item.id}}"> {% if item.name|stringformat:"s" == 'Regular' %} 
+                        {% else %} {{ item.name }} {% endif %} ${{item.amount}}</option>
+                    {% endfor %}
+                </select>  </div>
+                <hr>
+                {% if items.customizable is True%}
+                <h5>You can select up to 3 toppings</h5>   
+                <small>Note: Adding toppings costs extra charge</small>
+                {% endif %}
+                <div class="checkbox-inline">
+
+                    
+                    
+                {% for topping in items.toppings.all %}
+                <div class="form-check-inline">
+                    <label class="form-check-label">
+                {% if items.special is False%}
+
+                        <input class="form-check-input" name="toppings-selected"
+                        type="checkbox" value="{{topping.id}}"
+                        id="toppings-selected">
+                {% else %}
+                
+                {% endif %}
+                {{topping.item}}
+                    </label>
+                  </div>
+                {% endfor %}
+            </div>
+
+                  
+                    
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-danger">Add to cart</button>
+            </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    
+     
+    {% endif %}
+    
+      {% endfor %}
+    
+    </div> 
+            </div>
+            <div class="col-3" style="margin-bottom: 40px; " >
+                <div class="position-fixed" style="z-index: 1041" >
+                       <!-- start shopping cart  -->
+
+                <div class="card" >
+                    <div class="card-header">
+                      Shopping Cart <i class="fa fa-shopping-cart" style="font-size:20px;color:#000"></i>
+                    </div>
+                    {% if cart_item_count > 0 %}
+                    <div class="card-body">
+                        <div class="card-text" >
+                            <div class="table-wrapper-scroll-y
+                            my-custom-scrollbar" style="display: flex; flex-direction: column-reverse;">
+
+                                <table class="table table-bordered table-striped mb-0">
+                                  <thead>
+                                    <tr>
+                                      <th scope="col">Item</th>
+                                      <th scope="col">Qty</th>
+                                      <th scope="col">Amount</th>
+                                      <th scope="col"></th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {% for order in orders %}
+                                    {% if order.status == 0 %}
+                                    {% for item in order.item.all %}
+                                    <tr>
+                                      <th scope="row">{{item}}</th>
+                                      <td>{{order.qty}}</td>
+                                      <td>${{order.amount}}</td>
+                                      <td><form action="{% url 'delete_from_cart'%}" method="POST">
+                                      {% csrf_token %}
+                                      <input type="hidden" name="next" value="{{ request.path }}">
+                                      <input type="hidden" name="item_id"
+                                      value="{{order.id}}"><button type="submit"
+                                      class="btn"><i class="fa
+                                      fa-trash"></i></button></form>
+                                      </td>
+                                    </tr>
+                                    {% if order.item_topping.all %}
+                        <tr>
+                             
+                             <td colspan="3"><small><small>+ {% for topping in order.item_topping.all %} {{topping|join:" // "}} {% if not forloop.last %}, {% endif %}
+                                 {% endfor %}</small></small></td>
+                        </tr>
+                        {% endif %}
+
+
+                     {% endfor %}
+                     {% endif %}
+                     {% endfor %}
+                     <tr>
+                        <td></td>
+                        <td colspan="2"><hr> <b>Total</b>: ${{ total }} </td>
+                        <td></td>
+                    </tr>
+                                  </tbody>
+                                </table>
+                              
+                              </div>
+                        
+                       
+
+                      <hr>
+                       
+                      <span class="float-right">   
+                        <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#checkout">
+                            Checkout
+                          </button>
+
+                          <div class="modal fade" id="checkout" tabindex="-1"
+                          role="dialog"
+                          aria-labelledby="exampleModalCenterTitle"
+                          aria-hidden="true" >
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                              <div class="modal-content">
+                                <div class="modal-header">
+                                  <h5 class="modal-title"
+                                  id="exampleModalLongTitle">Confirm Cart Items</h5>
+                                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                  </button>
+                                </div>
+                                <div class="modal-body">
+                                    <center>
+                                    <table>
+
+                                        <th>Item</th>
+                                    <th>Qty</th>
+                                    <th>Price</th>
+                                    {% for order in orders %}
+                                    {% if order.status == 0 %}
+
+
+
+                                    {% for item in order.item.all %}
+                                    
+                                    <tr>
+                                      <td scope="row">{{item}}</th>
+                                      <td>{{order.qty}}</td>
+                                      <td>${{order.amount}}</td>
+                                    </tr>
+
+                                    {% if order.item_topping.all %}
+                        <tr>
+                             
+                             <td colspan="3"><small><small>+ {% for topping in order.item_topping.all %} {{topping|join:" // "}} {% if not forloop.last %}, {% endif %}
+                                 {% endfor %}</small></small></td>
+                        </tr>
+                        {% endif %}
+
+
+                     {% endfor %}
+                     {% endif %}
+                     {% endfor %}
+                    </table>
+                </center>
+                                </div>
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                  <form action="{% url 'charge' %}" method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" value="{{total}}" id="amount"
+                                    name="amount">
+                                    <input type="hidden" value="{{total_id}}" id="ids" name="ids">
+                                    <!-- stripe script  -->
+                                  <script
+                src="https://checkout.stripe.com/checkout.js"
+                class="stripe-button"
+                data-key="{{ key }}"
+                data-name="Afe Pizza Hut"
+                data-description="secure payment"
+                data-amount="{{total|stripeconversion}}"
+                data-currency="usd">
+              </script>
+               <script>
+                // Hide default stripe button, be careful there if you
+                // have more than 1 button of that class
+                document.getElementsByClassName("stripe-button-el")[0].style.display = 'none';
+            </script>
+            <button type="submit" class="btn btn-success">Confirm & Pay ${{total}}</button>
+              </form>
+              <!-- end stipe script  -->
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                    
+</script></span>
+                  
+                    </div>
+                  </div>
+                  {% else %}
+                  <span class="p-5" style='font-size:20px;'>Your cart is empty &#128532;</span>
+{% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+
+                    <!-- if url is orders start orders page -->
+
+    <div class="pagination">
+        {% if user_orders.has_previous %}
+            <a class="pagination-action" href="?page=1">
+                <i class="fa fa-angle-double-left" aria-hidden="true"></i> </a>
+            <a class="pagination-action" href="?page={{ user_orders.previous_page_number }}">
+                <i class="fa fa-angle-left" aria-hidden="true"></i>
+            </a>
+        {% endif %}
+        {% for num in user_orders.paginator.page_range %}
+            {% if user_orders.number == num %}
+                <span class="pagination-number pagination-current">{{ num }} </span>
+            {% elif num > user_orders.number|add:'-3' and num < user_orders.number|add:'3' %}
+                <a class="pagination-number" href="?page={{ num }}">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+        {% if user_orders.has_next %}
+            <a class="pagination-action" href="?page={{ user_orders.next_page_number }}">
+                <i class="fa fa-angle-right" aria-hidden="true"></i>
+            </a>
+            <a class="pagination-action" href="?page={{ user_orders.paginator.num_pages }}">
+                <i class="fa fa-angle-double-right" aria-hidden="true"></i>
+            </a>
+           
+        {% endif %}
+       
+    </div>
+    
+    <div class="row">
+    
+        <div class="col-md-9"  style="max-height: 80%; 
+                     max-width: 100%; 
+            background-color: rgb(255, 185, 185); padding: 15px; margin-bottom:
+            80px; border-radius: 5px; ">
+            <!-- start of drop down  -->
+            <form action="{% url 'orders' %}" method="get">
+
+                <select name="filter_status" class="form-control col-2"
+                id="">
+                <option value="">All</option>
+                    <option value="2">Completed</option>
+                    <option value="1">Pending</option>
+                    <option value="3">Refunded</option>
+                </select>
+                <button class="btn btn-danger btn-sm col-2 mt-1 mb-1" type="submit">Filter</button>
+
+        </form>
+<div class="row mb-2">
+
+
+<table id="dtBasicExample" class="table  table-sm" cellspacing="0" width="100%">
+    <thead  style="text-align:center">
+      <tr>
+        <th class="th-sm">Order ID
+  
+     </th>
+        <th class="th-sm">Item</th>
+        <th class="th-sm">Price</th>
+        <th class="th-sm">Qty</th>
+        <th class="th-sm">Status</th> 
+
+        {% if user.is_staff %}
+
+        <!-- if user is staff show order actions  -->
+
+        <th class="th-sm">Customer</th>
+        <th class="th-sm">Actions</th>
+        {% endif %}
+
+      </tr>
+    </thead>
+    <tbody >
+      
+        {% regroup user_orders by order_id as order_list %}
+        {% for order_id in order_list %}
+        <tbody>
+          <tr>
+             <td rowspan="100" style="vertical-align: middle;text-align:center;"><small>{{order_id.grouper}}</small></td>
+          </tr>
+
+        
+
+               
+             {% for item in order_id.list %}
+             {% load striper %}
+             
+                
+                {% for name in item.item.all%}
+               <td>
+                   {{ name }}
+                   
+                   {% for type in name.size.all %}
+
+                   <sup style="border: 1px solid red; color: white; background-color: red;"><small><i>{{type.item_type}}</i></small></sup>
+
+                   {% endfor %}
+                   <p>
+                   {% for topping in item.item_topping.all %} 
+                   <small><small>+ {{topping}}</small></small>
+                   
+                   {% endfor %}
+                   </p>
+                 </td>
+                 
+               {% endfor %}
+               <td>
+                   ${{ item.amount }} 
+               </td>
+               <td >{{ item.qty }}</td>
+               <td>
+                   {% if item.status == 1 %} Pending 
+                   {% elif item.status == 3 %} Refunded 
+                   {% else %} Completed 
+                   {% endif %}
+                </td>
+                {% if user.is_staff %}
+                <td><span><small>
+                    {% for customer in customers%} 
+
+                    {% if customer.id == item.user_id %}
+                    
+                    {{customer.username}}
+
+                    {% endif %}
+
+                    {% endfor %}
+                    
+                    </small></span></td>
+                <td>
+                    <form action="{% url 'admin_update_orders'%}" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="item_id" value="{{item.id}}">
+                    <select class="form-control mb-1" name="update" id="">
+                    <option value="confirm">Confirm</option>
+                    <option value="refund">Refund</option>
+                    <option value="pend">Pend</option>
+                </select>
+                <button type="submit" class="btn btn-dark
+                btn-sm">Ok</button>
+                </form>
+                
+            </td>
+                {% endif %}
+             </tr>
+            
+             {% endfor %}
+                
+                <td colspan="5" style="text-align:center; background-color:
+                rgb(2, 187, 2);"> 
+                    <b>Total Cost: 
+                        <span style="border: 2px solid black; background-color: black;
+                color: white; ">
+                ${{order_id.list|running_total}} 
+            </span> </b> </td>
+      
+                
+              </tr>
+              
+           </tbody>
+          
+      {% empty %}
+      <tr><td style="text-align: center;">No orders available</td></tr>
+      {% endfor %}
+     
+    </tbody>
+    
+  </table>
+
+</div> 
+
+        </div>
+  
+</div>
+
+    {% endif %}
+
+    </div>
+
+ 
+    <!-- drop down end  -->
+
+</body>
+<footer class="footer">
+    <div class="container">
+      <span class="text-muted">Project 3 | <i class="fa
+      fa-instagram"></i> @afetejiri | <i class="fa fa-github"></i> otejiri </span>
+    </div>
+  </footer>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<script type="text/javascript" src="{% static 'js/script.js' %}"></script>
+
+<script>
+
+$("input:checkbox").click(function() {
+var toppingcount = $("input:checkbox:checked").length;
+
+var bol = toppingcount >= '{{extra_allowed_count}}';
+
+$("input:checkbox").not(":checked").attr("disabled",bol);
+});
+</script>
+</html>
